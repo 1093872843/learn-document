@@ -1,0 +1,22 @@
+{
+  "name": "playwright",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "cross-env playwright test --ui",
+    "test:prod": "cross-env MODE=prod playwright test --ui",
+    "codegen": "cross-env MODE=prod playwright codegen --device=iPhone_13 --load-storage=.auth/user.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.37.1",
+    "cross-env": "^7.0.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "npm": "^7.24.2"
+  }
+}

@@ -1,0 +1,2 @@
+templates/NNOTES.txt中的文本会在安装或升级Chart时输出。
+欢迎使用Chart!

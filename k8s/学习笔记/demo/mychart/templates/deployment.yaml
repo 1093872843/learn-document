@@ -1,0 +1,21 @@
+# 其中{{}}用于定义和插入变量，表达式和函数，
+# 如 “.Release.Name”是一个内置变量，用于插入安装Chart时指定的Release名称。
+# 以“.Values”开头的变量则用于引用在values.yaml文件中定义的变量。
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      release-name: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        release-name: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: web
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}

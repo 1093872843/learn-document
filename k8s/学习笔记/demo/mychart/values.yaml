@@ -1,0 +1,9 @@
+replicaCount: 1 # 定义默认副本数
+image: # 定义了默认的镜像仓库地址和标签
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: ""
+service: # 定义了默认的Service类型，端口和目标端口。
+  type: ClusterIP
+  port: 80
+  targetPort: 80

@@ -1,0 +1,6 @@
+apiVersion: v2 # Chart API版本
+name: mychart # Chart名称
+description: A Helm chart for Kubernetes # Chart 简要描述
+type: application # Chart 类型,枚举值【application，library】。
+version: 0.1.0 # Chart 版本号
+appVersion: "1.16.0" # Chart中应用程序的版本号。

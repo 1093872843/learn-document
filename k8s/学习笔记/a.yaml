@@ -1,29 +1,8 @@
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: web-to-db
-  namespace: default
-spec:
-  podSelector:
-    matchLabels:
-      app: mysql # 仅应用于team-b命名空间中的含有app=mysql标签的Pod
-  policyTypes: # 仅限制Ingress，不限制出栈流量
-    - Ingress
-    # - Egress
-  ingress:
-    - from:
-        # - namespaceSelector: # 仅允许指定命名空间的Pod访问
-        #     matchLabels:
-        #      name: website-ns
-        - podSelector: # 仅允许含有app=nginx标签的Pod访问
-            matchLabels:
-              app: nginx
-        # - ipBlock: # 仅允许指定IP的Pod访问
-        #     cidr: 192.168.2.0/24 # 仅允许来自IP地段“192.168.2.0/24”访问
-      ports:
-        - protocol: TCP
-          port: 3306
-  # egress:
-  #   - to:
-  #       - ipBlock: # 仅允许访问指定IP
-  #           cidr: 192.168.2.0/24 # 仅允许访问IP地段“192.168.2.0/24”
+hostname: 8.211.158.3
+http:
+  port: 80
+# https:
+#   port: 443
+#   certificate: /your/certificate/path
+#   private_key: /your/private/key/path
+#   strong_ssl_ciphers: false

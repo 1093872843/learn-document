@@ -1,0 +1,13 @@
+Pipeline {
+    parameters {
+        gitParameter branch: '', branchFilter: '.*', defaultValue: 'dev', description: '请选择构建的分支', name: 'Branch', quickFilterEnabled: false, selectedValue: 'NONE', sortMode: 'NONE', tagFilter: '*', type: 'GitParameterDefinition'
+    }
+    stages {
+        stage('拉取代码') {
+            steps {
+                checkout scmGit(branches: [[name: '${params.Bransh}']], extensions: [], userRemoteConfigs: [[credentialsId: '545aa6c3-1436-44cc-b226-01c9d6212734', url: 'http://192.168.1.90:88/root/java-web-demo.git']])
+            }
+        }
+    }
+} 
+

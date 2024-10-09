@@ -1,0 +1,129 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-rules
+  namespace: monitoring
+data:
+  general.yml: |
+    groups:
+    - name: General
+      # 无法连接监控目标
+      rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} 连接失败"
+          description: "{{ $labels.instance }} 连接失败，可能是服务器故障！"
+  node.yml: |
+    groups:
+    - name: K8s-Node
+      rules:
+      # CPU使用率超过80%
+      - alert: HighCPUUsage
+        expr: 100 - (avg(irate(node_cpu_seconds_total{mode="idle"}[2m])) by (instance) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} CPU使用率超过80%"
+          description: "{{ $labels.instance }} CPU使用率超过80%，当前值: {{ $value }}"
+      # 内存使用率超过80%
+      - alert: HighMemoryUsage
+        expr: 100 - (node_memory_MemFree_bytes+node_memory_Cached_bytes+node_memory_Buffers_bytes) / node_memory_MemTotal_bytes * 100 > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} 内存使用率超过80%"
+          description: "{{ $labels.instance }} 内存使用率超过80%，当前值: {{ $value }}"
+      # 硬盘分区使用率超过80%
+      - alert: HighDiskSpaceUsage
+        expr: 100 - (node_filesystem_free_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs"} * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} {{ $labels.mountpoint }} 分区使用率超过80%"
+          description: "{{ $labels.instance }} {{ $labels.mountpoint }} 分区使用率超过80%，当前值: {{ $value }}"
+  pod.yml: |
+    groups:
+    - name: K8s-Pod
+      rules:
+      # Pod CPU使用率超过节点的80%
+      - alert: PodHighCPUUsage
+        expr: |
+           sum(rate(container_cpu_usage_seconds_total{pod!=""}[3m]) * 100) by (pod, namespace) > 80
+        for: 2m
+        labels:
+          severity: warning 
+        annotations:
+          summary: "{{ $labels.namespace }} | {{ $labels.pod }} CPU使用率超过80%"
+          description: "{{ $labels.namespace }} 命名空间下名为 {{ $labels.pod }} 的Pod CPU使用率超过节点的80%，当前值: {{ $value }}"
+      # Pod 内存使用率超过限制(limits.memory)的80%
+      - alert: PodHighMemoryUsage
+        expr: |
+           sum(container_memory_rss{pod!=""}) by(pod, namespace) / 
+           sum(container_spec_memory_limit_bytes{pod!=""}) by(pod, namespace) * 100 != +inf > 80
+        for: 2m
+        labels:
+          severity: warning 
+        annotations:
+          summary: "{{ $labels.namespace }} | {{ $labels.pod }} 内存使用率超过80%"
+          description: "{{ $labels.namespace }} 命名空间下名为 {{ $labels.pod }} 的Pod 内存使用率超过限制的80%，当前值: {{ $value }}"
+  pod-status.yml: |
+    groups:
+    - name: K8s-Pod-Status
+      rules:
+      # Pod重启
+      - alert: PodRestart
+        # 在过去5分钟内如果指标的值增量大于1，表达式成立
+        expr: increase(kube_pod_container_status_restarts_total[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning 
+        annotations:
+          summary: "{{ $labels.namespace }} | {{ $labels.pod }} 重启"
+          description: "{{ $labels.namespace }} 命名空间下名为 {{ $labels.pod }} 的Pod发生重启！ "
+      # Pod非运行状态
+      - alert: PodNotRunning
+        expr: sum(kube_pod_status_phase{phase=~"Pending|Unknown|Failed"}) by (pod,namespace) > 0
+        for: 5m
+        labels:
+          severity: critical 
+        annotations:
+          summary: "{{ $labels.namespace }} 命名空间下Pod {{ $labels.pod }} 处于非运行状态"
+          description: "{{ $labels.namespace }} 命名空间下名为 {{ $labels.pod }} 的Pod处于非运行状态超过5分钟！"
+  probe.yml: |
+    groups:
+    - name: K8s-Service-Ingress
+      rules:
+      # 探测失败
+      - alert: BlackboxProbeFailed
+        expr: probe_success == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} Blackbox 探测失败"
+          description: "{{ $labels.instance }} Blackbox 探测失败，可能是服务故障！"
+      # HTTP状态码非200-400
+      - alert: BlackboxProbeHttpFailure
+        expr: probe_http_status_code <= 199 OR probe_http_status_code >= 400
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.instance }} Blackbox HTTP探测失败"
+          description: "{{ $labels.instance }} Blackbox HTTP探测失败，状态码非200-400，当前值：{{ $value }}"
+      # HTTP请求时间超过1秒
+      - alert: BlackboxProbeHttpSlow
+        expr: avg_over_time(probe_http_duration_seconds[2m]) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.instance }} Blackbox HTTP请求慢"
+          description: "{{ $labels.instance }} Blackbox HTTP请求时间超过1秒！当前值：{{ $value }}"

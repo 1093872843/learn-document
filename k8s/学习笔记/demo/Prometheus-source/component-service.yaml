@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: etcd
+  namespace: kube-system
+spec:
+  ports:
+  - name: metrics
+    port: 2381
+    targetPort: 2381
+  selector:
+    component: etcd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  ports:
+  - name: metrics
+    port: 10257
+    targetPort: 10257
+  selector:
+    component: kube-controller-manager
+---
+apiVersion: v1
+kind: Service
+metadata: 
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  ports:
+  - name: metrics
+    port: 10259
+    targetPort: 10259
+  selector:
+    component: kube-scheduler
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+spec:
+  ports:
+  - name: metrics
+    port: 10249
+    targetPort: 10249
+  selector:
+    k8s-app: kube-proxy

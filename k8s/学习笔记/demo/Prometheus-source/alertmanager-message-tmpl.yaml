@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-message-tmpl
+  namespace: monitoring
+data:
+  email.tmpl: |
+    {{ define "emailMessage" }}
+    {{- if gt (len .Alerts.Firing) 0 -}}
+    {{- range $index, $alert := .Alerts -}}
+    {{- if eq $index 0 }}
+    ------ 告警问题 ------<br>
+    告警状态：{{ .Status }}<br>
+    告警级别：{{ .Labels.severity }}<br>
+    告警名称：{{ .Labels.alertname }}<br>
+    故障实例：{{ .Labels.instance }}<br>
+    告警概要：{{ .Annotations.summary }}<br>
+    告警详情：{{ .Annotations.description }}<br>
+    故障时间：{{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}<br>
+    ------ END ------<br>
+    {{- end }}
+    {{- end }}
+    {{- end }}
+
+    {{- if gt (len .Alerts.Resolved) 0 -}}
+    {{- range $index, $alert := .Alerts -}}
+    {{- if eq $index 0 }}
+    ------ 告警恢复 ------<br>
+    告警状态：{{ .Status }}<br>
+    告警级别：{{ .Labels.severity }}<br>
+    告警名称：{{ .Labels.alertname }}<br>
+    恢复实例：{{ .Labels.instance }}<br>
+    告警概要：{{ .Annotations.summary }}<br>
+    告警详情：{{ .Annotations.description }}<br>
+    故障时间：{{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}<br>
+    恢复时间：{{ (.EndsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}<br>
+    ------ END ------<br>
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+  wechat.tmpl: |
+    {{ define "wechatMessage" }}
+    {{- if gt (len .Alerts.Firing) 0 -}}
+    {{- range $index, $alert := .Alerts -}}
+    {{- if eq $index 0 }}
+    ------ 告警问题 ------
+    告警状态：{{ .Status }}
+    告警级别：{{ .Labels.severity }}
+    告警名称：{{ .Labels.alertname }}
+    故障实例：{{ .Labels.instance }}
+    告警概要：{{ .Annotations.summary }}
+    告警详情：{{ .Annotations.description }}
+    故障时间：{{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+    ------ END ------
+    {{- end }}
+    {{- end }}
+    {{- end }}
+
+    {{- if gt (len .Alerts.Resolved) 0 -}}
+    {{- range $index, $alert := .Alerts -}}
+    {{- if eq $index 0 }}
+    ------ 告警恢复 ------
+    告警状态：{{ .Status }}
+    告警级别：{{ .Labels.severity }}
+    告警名称：{{ .Labels.alertname }}
+    恢复实例：{{ .Labels.instance }}
+    告警概要：{{ .Annotations.summary }}
+    告警详情：{{ .Annotations.description }}
+    故障时间：{{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+    恢复时间：{{ (.EndsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+    ------ END ------
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}

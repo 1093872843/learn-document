@@ -1,0 +1,224 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    rule_files:
+    - "rules/*.yml"
+
+    alerting:
+      alertmanagers:
+      - static_configs:
+          - targets: ["alertmanager:9093"]
+
+    scrape_configs:
+      - job_name: "prometheus"
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: kubernetes-pods
+        kubernetes_sd_configs:
+        - role: pod
+        # 仅保留声明监控的Pod
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+        # 替换目标协议
+        - action: replace
+          regex: (https?)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+          target_label: __scheme__
+        # 替换目标指标接口路径
+        - action: replace
+          regex: (.+)
+          replacement: $1
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        # 替换目标端口
+        - action: replace  
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          source_labels:
+          - __address__
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          target_label: __address__
+       
+      - job_name: kubernetes-services
+        kubernetes_sd_configs:
+        - role: service
+        params:
+          module: [http_2xx]
+        metrics_path: /probe  # 指定Blackbox的接口路径
+        relabel_configs:
+        # 仅保留声明监控的Service
+        - action: keep
+          regex: http
+          source_labels: 
+          - __meta_kubernetes_service_annotation_prometheus_io_probe
+        # 替换__param_target的值为__address__的值
+        - action: replace
+          source_labels: 
+          - __address__
+          target_label: __param_target
+        # 替换__param_target的值为instance的值
+        - action: replace
+          source_labels: 
+          - __param_target
+          target_label: instance
+        # 指定Blackbox的Service地址
+        - action: replace
+          target_label: __address__
+          replacement: blackbox-exporter:9115
+
+      - job_name: kubernetes-ingresses
+        kubernetes_sd_configs:
+        - role: ingress
+        metrics_path: /probe
+        params:
+          module: [http_2xx]
+        relabel_configs:
+        - action: keep
+          regex: http
+          source_labels: 
+          - __meta_kubernetes_ingress_annotation_prometheus_io_probe
+        - action: replace
+          regex: (.+);(.+);(.+)
+          replacement: ${1}://${2}${3}
+          source_labels:
+            [
+              __meta_kubernetes_ingress_scheme,
+              __address__,
+              __meta_kubernetes_ingress_path,
+            ]
+          target_label: __param_target
+        - action: replace
+          source_labels: 
+          - __param_target
+          target_label: instance
+        - action: replace
+          target_label: __address__
+          replacement: blackbox-exporter:9115
+
+      - job_name: kubernetes-apiserver
+        kubernetes_sd_configs:
+        - role: endpoints
+        scheme: https
+        # 指定验证监控目标的根证书
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        # 指定连接监控目标的Token
+        authorization:
+          type: Bearer
+          credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        # 仅保留default命名空间名为kubernetes的Service
+        - action: keep
+          regex: default;kubernetes
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+
+      - job_name: kubernetes-etcd
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        # 仅保留kube-system命名空间中名为etcd的Service
+        - action: keep
+          regex: kube-system;etcd
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+
+      - job_name: kubernetes-controller-manager
+        kubernetes_sd_configs:
+        - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        authorization:
+          type: Bearer
+          credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        # 仅保留kube-system命名空间中名为kube-controller-manager的Service
+        - action: keep
+          regex: kube-system;kube-controller-manager
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+
+      - job_name: kubernetes-scheduler
+        kubernetes_sd_configs:
+        - role: endpoints
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        authorization:
+          type: Bearer
+          credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        relabel_configs:
+        # 仅保留kube-system命名空间名为kube-scheduler的Service
+        - action: keep
+          regex: kube-system;kube-scheduler
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+
+      - job_name: kubernetes-nodes-kubelet
+        kubernetes_sd_configs:
+        - role: node
+        scheme: https  # 指定连接监控目标的协议
+        # 指定验证监控目标的根证书
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+          insecure_skip_verify: true
+        # 指定连接监控目标的Token
+        authorization:
+          type: Bearer
+          credentials_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      - job_name: kubernetes-kube-proxy
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        # 仅保留kube-system命名空间名为kube-proxy的Service
+        - action: keep
+          regex: kube-system;kube-proxy
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+
+      - job_name: kubernetes-coredns
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        # 仅保留kube-system命名空间名为kube-dns的Service
+        - action: keep
+          regex: kube-system;kube-dns;metrics
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+          - __meta_kubernetes_endpoint_port_name
+
+      - job_name: kubernetes-ingress-controller
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        # 仅保留ingress-nginx命名空间名为ingress-nginx-controller的Service
+        - action: keep
+          regex: ingress-nginx;ingress-nginx-controller;metrics
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+          - __meta_kubernetes_endpoint_port_name

@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter 
+      annotations:
+        prometheus.io/scrape: "true"
+        #prometheus.io/scheme: "http"
+        #prometheus.io/path: "/metrics"
+        prometheus.io/port: "9100"
+    spec:
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      hostNetwork: true
+      hostPID: true
+      containers:
+        - name: node-exporter
+          image: "prom/node-exporter:latest"
+          args:
+            - --path.rootfs=/host
+          #ports:
+          #  - name: metrics
+          #    containerPort: 9100
+          volumeMounts:
+            - name: rootfs 
+              mountPath: /host
+              readOnly:  true
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /

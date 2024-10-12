@@ -16,7 +16,7 @@ import sortDependencies from './sortDependencies'
  */
 function renderTemplate(src, dest, callbacks) {
   const stats = fs.statSync(src)
-
+  // 创建文件夹
   if (stats.isDirectory()) {
     // skip node_module
     if (path.basename(src) === 'node_modules') {
@@ -30,7 +30,7 @@ function renderTemplate(src, dest, callbacks) {
     }
     return
   }
-
+  // 复制文件
   const filename = path.basename(src)
 
   if (filename === 'package.json' && fs.existsSync(dest)) {

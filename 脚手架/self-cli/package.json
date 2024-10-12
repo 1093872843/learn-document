@@ -1,5 +1,5 @@
 {
-  "name": "self-cli",
+  "name": "conaco-vite-cli",
   "version": "1.0.0",
   "description": "自定义脚手架Demo",
   "type": "module",
@@ -13,9 +13,13 @@
   "bin": {
     "mycli": "outfile.cjs"
   },
+  "files": [
+    "locales",
+    "outfile.cjs",
+    "template"
+  ],
   "keywords": [],
   "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@tsconfig/node20": "^20.1.4",
     "@types/eslint": "^9.6.1",

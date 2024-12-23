@@ -296,8 +296,8 @@
             return refObject;
           }
           var isArrayImpl = Array.isArray;
-          function isArray(a) {
-            return isArrayImpl(a);
+          function isArray(a2) {
+            return isArrayImpl(a2);
           }
           function typeName(value) {
             {
@@ -3466,8 +3466,8 @@
             }
           }
           var isArrayImpl = Array.isArray;
-          function isArray(a) {
-            return isArrayImpl(a);
+          function isArray(a2) {
+            return isArrayImpl(a2);
           }
           var startInlineScript = stringToPrecomputedChunk("<script>");
           var endInlineScript = stringToPrecomputedChunk("<\/script>");
@@ -7289,7 +7289,7 @@
             }
             return result;
           }
-          function renderToString2(children, options) {
+          function renderToString(children, options) {
             return renderToStringImpl(children, options, false, 'The server used "renderToString" which does not support Suspense. If you intended for this Suspense boundary to render the fallback content on the server consider throwing an Error somewhere within the Suspense boundary. If you intended to have the server wait for the suspended component please switch to "renderToReadableStream" which supports Suspense on the server');
           }
           function renderToStaticMarkup(children, options) {
@@ -7304,7 +7304,7 @@
           exports.renderToNodeStream = renderToNodeStream;
           exports.renderToStaticMarkup = renderToStaticMarkup;
           exports.renderToStaticNodeStream = renderToStaticNodeStream;
-          exports.renderToString = renderToString2;
+          exports.renderToString = renderToString;
           exports.version = ReactVersion;
         })();
       }
@@ -8908,8 +8908,8 @@
             }
           }
           var isArrayImpl = Array.isArray;
-          function isArray(a) {
-            return isArrayImpl(a);
+          function isArray(a2) {
+            return isArrayImpl(a2);
           }
           var startInlineScript = stringToPrecomputedChunk("<script>");
           var endInlineScript = stringToPrecomputedChunk("<\/script>");
@@ -12715,10 +12715,13 @@
   // src/app.jsx
   var React = __toESM(require_react());
   var Server = __toESM(require_server_browser());
-  var Greet = () => /* @__PURE__ */ React.createElement("h1", null, "Hello, world!");
-  console.log(Server.renderToString(/* @__PURE__ */ React.createElement(Greet, null)));
-  console.log(file);
-  console.error(2);
+
+  // src/foo.js
+  var a = 1;
+  var foo_default = a;
+
+  // src/app.jsx
+  console.log(foo_default);
 })();
 /*! Bundled license information:
 

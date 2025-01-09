@@ -1,0 +1,16 @@
+{
+  "name": "some-code",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node ./build/esbuild.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "esbuild": "^0.24.2",
+    "qrcode": "^1.5.4"
+  }
+}

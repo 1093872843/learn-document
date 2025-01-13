@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 客户端</title>
+</head>
+<body>
+    <h1>WebSocket 客户端</h1>
+    <input type="text" id="messageInput" placeholder="输入消息...">
+    <button onclick="sendMessage()">发送消息</button>
+    <p>服务器回复：<span id="response"></span></p>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080');
+
+        socket.onopen = () => {
+            console.log('已连接到 WebSocket 服务器');
+        };
+
+        socket.onmessage = (event) => {
+            document.getElementById('response').textContent = event.data;
+        };
+
+        socket.onclose = () => {
+            console.log('WebSocket 连接已关闭');
+        };
+
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            socket.send(message);
+        }
+    </script>
+</body>
+</html>

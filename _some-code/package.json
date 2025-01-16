@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "dev": "node ./build/esbuild.js"
-  },
+  "scripts": {},
   "author": "",
   "license": "ISC",
   "description": "",
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
+    "antd": "^5.23.1",
     "esbuild": "^0.24.2",
-    "qrcode": "^1.5.4"
+    "express": "^4.21.2",
+    "fs-extra": "^11.2.0",
+    "node": "^23.5.0"
   }
 }

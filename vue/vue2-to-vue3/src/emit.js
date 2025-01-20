@@ -26,8 +26,6 @@ module.exports = {
             nodeList.push({ type: 'Literal', value: item })
         
         })
-        console.log(nodeList);
-        
         const defineEmitsNode = {
             type: 'VariableDeclaration',
             declarations: [

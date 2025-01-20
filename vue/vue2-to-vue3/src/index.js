@@ -36,8 +36,6 @@ module.exports = {
             }
         })
         emitRule.after(ast)
-
-
         return ast
     },
     afterFormat:function(content){

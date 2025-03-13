@@ -1,5 +1,5 @@
 # 本案例 结合agent实现提取文本摘要
-# 核心问题是如何将文档传递到LLM上下文窗口
+# 核心问题是如何将文档传递到LLM上下文窗口切不超过文档最大上下文
 # 生成的graph流程图为 ./img/agent_generate_summarize2.png
 from langchain_deepseek import ChatDeepSeek
 from typing import Tuple
@@ -113,13 +113,15 @@ async def _reduce(input: dict) -> str:
 
 # 缩减上下文
 async def collapse_summaries(state: OverallState):
+    #　根据最大长度重新分配列表摘要列表,返回一个二维数组。
     doc_lists = split_list_of_docs(
         state["collapsed_summaries"], length_function, token_max
     )
     results = []
+    # 对二位数组中的每个列表元素进行摘要合并,生成一个合并摘要后的文档列表results
     for doc_list in doc_lists:
         results.append(await acollapse_docs(doc_list, _reduce))
-
+    # 对合并摘要后的文档列表重新进行缩减上下文判断
     return {"collapsed_summaries": results}
 
 

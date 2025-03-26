@@ -14,8 +14,8 @@ async function sendMessage(value) {
     let response = await openai.chat.completions.create(data)
     return response.choices[0].message
 }
-// 文本单次问答
-export async function answer(question) {
+//** 文本单次问答*/
+export async function send_text(question) {
     let message = await sendMessage({ messages: [{ role: "system", content: question }] })
     console.log(message.content);
 }
@@ -24,7 +24,7 @@ export async function answer(question) {
  使用 DeepSeek /chat/completions API 进行多轮对话。
  DeepSeek /chat/completions API 是一个“无状态” API，即服务端不记录用户请求的上下文，用户在每次请求时，需将之前所有对话历史拼接好后，传递给对话 API。
 */
-export async function talk() {
+export async function chat() {
     let messages = [{ "role": "user", "content": "What's the highest mountain in the world?" }]
     let message = await sendMessage({ messages })
     messages.push(message)
@@ -38,18 +38,19 @@ export async function talk() {
     console.log(`Messages Round 2: ${JSON.stringify(messages)}`)
 }
 
-//调用外部函数
+//** 调用外部函数*/
+    // 实际函数
 function getFood() {
     console.log('获取食谱函数被调用');
     return '麻婆豆腐'
 }
-
+    // 实际函数
 function getWeather(location) {
     console.log('获取天气函数被调用');
     return '24℃'
 }
-
-export async function callFun(question) {
+    // 调用函数
+export async function useTools(question) {
     const tools = [
         {
             "type": "function",
@@ -111,3 +112,5 @@ export async function callFun(question) {
     console.log('值');
     console.log(message.content);
 }
+
+//** */

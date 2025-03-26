@@ -6,5 +6,9 @@
 **/.next
 **/.env
 **/.idea
+**/.venv
 **/__pycache__
+test.css
+test.html
+test.js
 

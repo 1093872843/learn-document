@@ -28,6 +28,7 @@ def send_text():
 # 发送图片
 # https://platform.openai.com/docs/guides/images?api-mode=chat&format=url
 def send_img():
+
     # 图片类型支持.png,.jpeg,.jpg,webp,.gif;
     # 每张图片最大20M,分辨率在512*512~768*2000
     # 无水印，无文字，禁止 NSFW 内容
@@ -46,6 +47,7 @@ def send_img():
             }
         ],"gpt-4o-mini")
     return resp.choices[0].message.content
+
 # 文本生成语音
 def transform_audio():
     completion = client.chat.completions.create(
@@ -63,6 +65,7 @@ def transform_audio():
     wav_bytes = base64.b64decode(completion.choices[0].message.audio.data)
     with open("dog.wav", "wb") as f:
         f.write(wav_bytes)
+
 # 调用网络搜索
 def use_web_search():
    #  确保你的账号可以使用这个模型
@@ -76,6 +79,7 @@ def use_web_search():
         model="gpt-4o-search-preview"
     )
    return resp.choices[0].message.content
+
 # 函数调用
 # https://platform.openai.com/docs/guides/function-calling
 def use_tools():
@@ -127,8 +131,7 @@ def use_tools():
             )
             print(completion_2.choices[0].message.content)
 
-
-## 流式响应
+# 流式响应
 def stream_resp():
     stream = chat(
         messages=[
@@ -142,6 +145,7 @@ def stream_resp():
     for chunk in stream:
         print(chunk.choices[0].delta.content)
         print("****************")
+
 # 结构化输出
 ## 定义输出结构
 class CalendarEvent(BaseModel):
@@ -159,6 +163,7 @@ def format_output():
         response_format=CalendarEvent,
     )
     print(completion.choices[0].message.parsed)
+
 # 流式响应结构化输出
 class EntitiesModel(BaseModel):
     attributes: List[str]
@@ -188,6 +193,7 @@ def stream_resp_format():
 
     final_completion = stream.get_final_completion()
     print("Final completion:", final_completion)
+
 # 流式响应工具调用
 class GetWeather(BaseModel):
     city: str

@@ -5,3 +5,6 @@
 **/.github
 **/.next
 **/.env
+**/.idea
+**/__pycache__
+

@@ -1,0 +1,1 @@
+open ai的Agent SDK貌似需要真实的api key,淘宝购买的不起作用,这里未完成学习内容。

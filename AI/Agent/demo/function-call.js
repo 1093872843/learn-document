@@ -5,6 +5,7 @@ const openai = new OpenAI({
     apiKey: apiKey
 });
 
+// 提问
 async function sendMessage(value) {
     const data = {
         model: "deepseek-chat",
@@ -14,48 +15,31 @@ async function sendMessage(value) {
     let response = await openai.chat.completions.create(data)
     return response.choices[0].message
 }
-// 文本单次问答
-export async function answer(question) {
-    let message = await sendMessage({ messages: [{ role: "system", content: question }] })
-    console.log(message.content);
-}
 
-/** 多轮对话
- 使用 DeepSeek /chat/completions API 进行多轮对话。
- DeepSeek /chat/completions API 是一个“无状态” API，即服务端不记录用户请求的上下文，用户在每次请求时，需将之前所有对话历史拼接好后，传递给对话 API。
-*/
-export async function talk() {
-    let messages = [{ "role": "user", "content": "What's the highest mountain in the world?" }]
-    let message = await sendMessage({ messages })
-    messages.push(message)
-    console.log(`Messages Round 1: ${JSON.stringify(messages)}`)
 
-    //  Round 2
-    messages.push({ "role": "user", "content": "What is the second?" })
-    message = await sendMessage({ messages })
-
-    messages.push(message)
-    console.log(`Messages Round 2: ${JSON.stringify(messages)}`)
-}
-
-//调用外部函数
+//预定义函数，查询食谱
 function getFood() {
     console.log('获取食谱函数被调用');
     return '麻婆豆腐'
 }
-
+// 预定义函数，查询天气
 function getWeather(location) {
     console.log('获取天气函数被调用');
     return '24℃'
 }
 
+// function-call
 export async function callFun(question) {
+    // 定义函数描述，这个很重要，AI根据函数描述来决定问题所需要使用的函数
     const tools = [
         {
             "type": "function",
             "function": {
+                // 函数名称
                 "name": "getWeather",
+                // 函数描述
                 "description": "Get weather of an location, the user shoud supply a location first",
+                // 函数所需要的参数
                 "parameters": {
                     "type": "object",
                     "properties": {
@@ -88,6 +72,7 @@ export async function callFun(question) {
     ]
     let messages = [{ "role": "user", "content": question }]
     let message = await sendMessage({ messages, tools })
+    // AI返回的回答中会告知需要调用的函数名称，我们需要手动调用该函数。
     let tool = message.tool_calls[0]
     console.log('tool', JSON.stringify(tool));
     // 调用函数
@@ -104,6 +89,7 @@ export async function callFun(question) {
         default:
             break;
     }
+    // 将函数返回结果连同之前的上下文一起返回给AI再次询问得到结果。
     messages.push(message)
     console.log('callResp', callResp);
     messages.push({ "role": "tool", "tool_call_id": tool.id, "content": callResp })

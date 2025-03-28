@@ -8,3 +8,4 @@ if __name__ == '__main__':
 
     # format_output()
     use_tools()
+    # connect_ollama_local()

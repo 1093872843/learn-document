@@ -1,3 +1,5 @@
+
+# 如何连接Ollama 下载到本地的模型
 from openai import OpenAI
 
 # 使用openAI连接Ollama本地模型

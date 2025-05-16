@@ -1,0 +1,21 @@
+// tsconfig配置描述
+{
+    "compilerOptions ": {
+        /** 
+        隔离转译：传统的tsc会分析整个项目的依赖图，但是现代工具链大多采用单文件编译策略。
+        启用后将会强制所有文件能被单独编译成模块，对于Babel，Vite，esbuild等只做单文件编译的工具很有用。
+        这会让ts提前检查代码，禁用某些写法以保证每个文件都是可以独立编译。
+        **/
+        "isolatedModules": true,
+        /**
+        跳过对依赖库中.d.ts类型声明文件的类型检查，启用后，TypeScript 不会去检查 node_modules 中的类型定义是否存在错误。这也会大大减少编译时的类型检查负担。
+        **/
+        "skipLibCheck":true,
+        // 开启后，编译时自动生成对应的.d.ts声明文件
+        "declaration": true,
+        // 开启后，编译器会为生成的.d.ts声明文件生成.d.ts.map文件，方便调试。
+        "declarationMap": true,
+        // 定义类内部的字段如何被ts编译实现js，true通过defineProperty定义字段，不可枚举；false则是直接赋值的字段属性。
+        "useDefineForClassFields":true
+    }
+}
